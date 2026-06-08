@@ -1,0 +1,28 @@
+[crawl]
+max_pages = 100
+max_depth = 2
+obey_robots = true
+stay_on_seed_domain = true
+# SSRF guard: when true, the raw_socket transport refuses to connect to
+# loopback, private, link-local, multicast, or otherwise non-public addresses
+# (e.g. 127.0.0.1, 10.0.0.0/8, 169.254.169.254, ::1). Leave false for local
+# development against the bundled fixture server, which listens on 127.0.0.1;
+# set true when crawling the public internet. CLI override: --block-private-addresses.
+block_private_addresses = false
+# Extra in-scope domains beyond the seed (merged with --allow-domain).
+# The seed's own domain (and its www. variant) is always allowed.
+# allowed_domains = ["example.org", "cdn.example.com"]
+min_delay_seconds = 1.0
+max_response_bytes = 2097152
+redirect_limit = 5
+retry_count = 2
+
+[http]
+transport = "raw_socket"
+user_agent = "scrapehound/0.1 (+local capstone project; contact: configured-email)"
+connect_timeout = 5.0
+read_timeout = 10.0
+total_timeout = 30.0
+
+[storage]
+db_path = "scrapehound.sqlite"
