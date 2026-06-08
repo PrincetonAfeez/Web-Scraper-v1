@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scrapehound"
+version = "0.1.0"
+description = "A production-minded capstone web scraper focused on HTTP, sockets, crawling etiquette, and SQLite persistence."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Capstone Student" }]
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.3",
+    "ruff==0.15.16",
+    "setuptools>=68",
+]
+
+[project.scripts]
+scrapehound = "scrapehound.cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+scrapehound = ["storage/schema.sql"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = ["E501"]
