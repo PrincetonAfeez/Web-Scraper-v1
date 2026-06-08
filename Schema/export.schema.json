@@ -1,0 +1,202 @@
+{
+  "$id": "https://example.com/scrapehound/schema/export.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scrapehound Export Output",
+  "type": "object",
+  "description": "JSON shape returned by Storage.export_json() and emitted by `scrapehound export --format json`.",
+  "additionalProperties": false,
+  "properties": {
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "job_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Absolute URL handled by scrapehound."
+          },
+          "final_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Absolute URL handled by scrapehound."
+          },
+          "normalized_url": {
+            "type": "string"
+          },
+          "status_code": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599
+          },
+          "content_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "headings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "body_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "body_text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "text_encoding": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "timing": {
+            "$ref": "timing-breakdown.schema.json"
+          },
+          "transport": {
+            "type": "string",
+            "enum": [
+              "raw_socket",
+              "library",
+              "unknown"
+            ]
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "fetched_at": {
+            "type": "string",
+            "description": "SQLite datetime string, usually YYYY-MM-DD HH:MM:SS in UTC."
+          }
+        },
+        "required": [
+          "id",
+          "job_id",
+          "url",
+          "final_url",
+          "normalized_url",
+          "status_code",
+          "content_type",
+          "title",
+          "description",
+          "headings",
+          "links",
+          "body_sha256",
+          "body_text",
+          "text_encoding",
+          "timing",
+          "transport",
+          "depth",
+          "fetched_at"
+        ]
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "job_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Absolute URL handled by scrapehound."
+          },
+          "normalized_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status_code": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 100,
+            "maximum": 599
+          },
+          "retry_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "created_at": {
+            "type": "string",
+            "description": "SQLite datetime string, usually YYYY-MM-DD HH:MM:SS in UTC."
+          }
+        },
+        "required": [
+          "id",
+          "job_id",
+          "url",
+          "normalized_url",
+          "category",
+          "message",
+          "status_code",
+          "retry_count",
+          "created_at"
+        ]
+      }
+    },
+    "stats": {
+      "$ref": "stats.schema.json"
+    }
+  },
+  "required": [
+    "pages",
+    "failures",
+    "stats"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "$id": "https://example.com/scrapehound/schema/robots-result.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scrapehound Robots Command Output",
+  "type": "object",
+  "description": "JSON output emitted by `scrapehound robots`.",
+  "additionalProperties": false,
+  "properties": {
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Absolute URL handled by scrapehound."
+    },
+    "allowed": {
+      "type": "boolean"
+    },
+    "crawl_delay": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    }
+  },
+  "required": [
+    "url",
+    "allowed",
+    "crawl_delay"
+  ]
+}

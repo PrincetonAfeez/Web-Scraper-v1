@@ -1,0 +1,372 @@
+{
+  "program": "scrapehound",
+  "commands": {
+    "scrape": {
+      "description": "Fetch one URL",
+      "arguments": [
+        {
+          "name": "url",
+          "kind": "positional",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "--config",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--transport",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "choices": [
+            "raw_socket",
+            "library"
+          ],
+          "default": null
+        },
+        {
+          "name": "--user-agent",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--connect-timeout",
+          "kind": "option",
+          "type": "number",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--read-timeout",
+          "kind": "option",
+          "type": "number",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--total-timeout",
+          "kind": "option",
+          "type": "number",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--max-bytes",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--redirect-limit",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--block-private-addresses",
+          "kind": "flag",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "--trace",
+          "kind": "flag",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        }
+      ],
+      "output_schema": "fetch-result.schema.json"
+    },
+    "crawl": {
+      "description": "Crawl from a seed URL",
+      "arguments": [
+        {
+          "name": "url",
+          "kind": "positional",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "--config",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--db",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--transport",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "choices": [
+            "raw_socket",
+            "library"
+          ],
+          "default": null
+        },
+        {
+          "name": "--max-pages",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--max-depth",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--max-bytes",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--connect-timeout",
+          "kind": "option",
+          "type": "number",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--read-timeout",
+          "kind": "option",
+          "type": "number",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--total-timeout",
+          "kind": "option",
+          "type": "number",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--redirect-limit",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--retry-count",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--delay",
+          "kind": "option",
+          "type": "number",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--allow-domain",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "repeatable": true,
+          "default": null
+        },
+        {
+          "name": "--ignore-robots",
+          "kind": "flag",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "--block-private-addresses",
+          "kind": "flag",
+          "type": "boolean",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--trace",
+          "kind": "flag",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        }
+      ],
+      "output_schema": "crawl-summary.schema.json"
+    },
+    "resume": {
+      "description": "Resume a persisted crawl job",
+      "arguments": [
+        {
+          "name": "--db",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": "scrapehound.sqlite"
+        },
+        {
+          "name": "--job-id",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--config",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--trace",
+          "kind": "flag",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "--delay",
+          "kind": "option",
+          "type": "number",
+          "required": false,
+          "default": null
+        }
+      ],
+      "output_schema": "crawl-summary.schema.json"
+    },
+    "stats": {
+      "description": "Show crawl stats from SQLite",
+      "arguments": [
+        {
+          "name": "--db",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": "scrapehound.sqlite"
+        },
+        {
+          "name": "--job-id",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        }
+      ],
+      "output_schema": "stats.schema.json"
+    },
+    "export": {
+      "description": "Export pages and failures",
+      "arguments": [
+        {
+          "name": "--db",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": "scrapehound.sqlite"
+        },
+        {
+          "name": "--job-id",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "--format",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "choices": [
+            "json"
+          ],
+          "default": "json"
+        },
+        {
+          "name": "--output",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": null
+        }
+      ],
+      "output_schema": "export.schema.json"
+    },
+    "robots": {
+      "description": "Check robots.txt policy for a URL",
+      "arguments": [
+        {
+          "name": "url",
+          "kind": "positional",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "--transport",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "choices": [
+            "raw_socket",
+            "library"
+          ],
+          "default": "raw_socket"
+        },
+        {
+          "name": "--user-agent",
+          "kind": "option",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "output_schema": "robots-result.schema.json"
+    },
+    "serve-fixture": {
+      "description": "Run the deterministic WSGI fixture server",
+      "arguments": [
+        {
+          "name": "--host",
+          "kind": "option",
+          "type": "string",
+          "required": false,
+          "default": "127.0.0.1"
+        },
+        {
+          "name": "--port",
+          "kind": "option",
+          "type": "integer",
+          "required": false,
+          "default": 8000
+        }
+      ],
+      "output_schema": null
+    },
+    "doctor": {
+      "description": "Print basic runtime diagnostics",
+      "arguments": [],
+      "output_schema": null
+    }
+  }
+}

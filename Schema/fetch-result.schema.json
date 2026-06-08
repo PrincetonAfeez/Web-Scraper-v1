@@ -1,0 +1,106 @@
+{
+  "$id": "https://example.com/scrapehound/schema/fetch-result.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scrapehound Fetch Result",
+  "type": "object",
+  "description": "Portable JSON representation of the FetchResult dataclass. The runtime dataclass stores body as bytes; this schema represents it as body_base64 for JSON interchange.",
+  "additionalProperties": false,
+  "properties": {
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Absolute URL handled by scrapehound."
+    },
+    "final_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Absolute URL handled by scrapehound."
+    },
+    "status_code": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 100,
+      "maximum": 599
+    },
+    "reason": {
+      "type": "string"
+    },
+    "headers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "HTTP response headers as parsed by the transport layer."
+    },
+    "body_base64": {
+      "type": "string",
+      "contentEncoding": "base64",
+      "description": "Base64-encoded response body for JSON-safe storage or fixtures."
+    },
+    "timings": {
+      "$ref": "timing-breakdown.schema.json"
+    },
+    "redirect_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Absolute URL handled by scrapehound."
+          },
+          "status_code": {
+            "type": "integer",
+            "minimum": 300,
+            "maximum": 399
+          },
+          "location": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "status_code",
+          "location"
+        ]
+      }
+    },
+    "transport": {
+      "type": "string",
+      "enum": [
+        "raw_socket",
+        "library",
+        "unknown"
+      ]
+    },
+    "error_category": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error_message": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "url",
+    "final_url",
+    "status_code",
+    "reason",
+    "headers",
+    "body_base64",
+    "timings",
+    "redirect_history",
+    "transport",
+    "error_category",
+    "error_message"
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "$id": "https://example.com/scrapehound/schema/cli-contract.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scrapehound CLI Contract",
+  "type": "object",
+  "description": "Machine-readable summary of scrapehound's command surface.",
+  "additionalProperties": false,
+  "properties": {
+    "program": {
+      "const": "scrapehound"
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scrape": {
+          "$ref": "#/$defs/command"
+        },
+        "crawl": {
+          "$ref": "#/$defs/command"
+        },
+        "resume": {
+          "$ref": "#/$defs/command"
+        },
+        "stats": {
+          "$ref": "#/$defs/command"
+        },
+        "export": {
+          "$ref": "#/$defs/command"
+        },
+        "robots": {
+          "$ref": "#/$defs/command"
+        },
+        "serve-fixture": {
+          "$ref": "#/$defs/command"
+        },
+        "doctor": {
+          "$ref": "#/$defs/command"
+        }
+      },
+      "required": [
+        "scrape",
+        "crawl",
+        "resume",
+        "stats",
+        "export",
+        "robots",
+        "serve-fixture",
+        "doctor"
+      ]
+    }
+  },
+  "required": [
+    "program",
+    "commands"
+  ],
+  "$defs": {
+    "argument": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "positional",
+            "option",
+            "flag"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "default": {},
+        "choices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "repeatable": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "kind",
+        "type",
+        "required"
+      ]
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/argument"
+          }
+        },
+        "output_schema": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "description",
+        "arguments",
+        "output_schema"
+      ]
+    }
+  },
+  "examples": [
+    {
+      "program": "scrapehound",
+      "commands": {
+        "scrape": {
+          "description": "Fetch one URL",
+          "arguments": [
+            {
+              "name": "url",
+              "kind": "positional",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "--transport",
+              "kind": "option",
+              "type": "string",
+              "required": false,
+              "choices": [
+                "raw_socket",
+                "library"
+              ]
+            },
+            {
+              "name": "--trace",
+              "kind": "flag",
+              "type": "boolean",
+              "required": false,
+              "default": false
+            }
+          ],
+          "output_schema": "fetch-result.schema.json"
+        },
+        "crawl": {
+          "description": "Crawl from a seed URL",
+          "arguments": [],
+          "output_schema": "crawl-summary.schema.json"
+        },
+        "resume": {
+          "description": "Resume a persisted crawl job",
+          "arguments": [],
+          "output_schema": "crawl-summary.schema.json"
+        },
+        "stats": {
+          "description": "Show crawl stats from SQLite",
+          "arguments": [],
+          "output_schema": "stats.schema.json"
+        },
+        "export": {
+          "description": "Export pages and failures",
+          "arguments": [],
+          "output_schema": "export.schema.json"
+        },
+        "robots": {
+          "description": "Check robots.txt policy for a URL",
+          "arguments": [],
+          "output_schema": "robots-result.schema.json"
+        },
+        "serve-fixture": {
+          "description": "Run the deterministic WSGI fixture server",
+          "arguments": [],
+          "output_schema": null
+        },
+        "doctor": {
+          "description": "Print basic runtime diagnostics",
+          "arguments": [],
+          "output_schema": null
+        }
+      }
+    }
+  ]
+}

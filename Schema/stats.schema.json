@@ -1,0 +1,54 @@
+{
+  "$id": "https://example.com/scrapehound/schema/stats.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scrapehound Stats Output",
+  "type": "object",
+  "description": "JSON output emitted by the stats command and included inside export output.",
+  "additionalProperties": false,
+  "properties": {
+    "frontier": {
+      "type": "object",
+      "description": "Counts grouped by frontier status.",
+      "properties": {
+        "pending": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "in_progress": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fetched": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retry_scheduled": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "pages": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "failures": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "frontier",
+    "pages",
+    "failures"
+  ]
+}

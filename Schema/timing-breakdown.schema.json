@@ -1,0 +1,47 @@
+{
+  "$id": "https://example.com/scrapehound/schema/timing-breakdown.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scrapehound Timing Breakdown",
+  "type": "object",
+  "description": "Timing fields produced by TimingBreakdown.as_dict(). Values are seconds.",
+  "additionalProperties": false,
+  "properties": {
+    "dns": {
+      "type": "number",
+      "minimum": 0
+    },
+    "tcp_connect": {
+      "type": "number",
+      "minimum": 0
+    },
+    "tls_handshake": {
+      "type": "number",
+      "minimum": 0
+    },
+    "request_write": {
+      "type": "number",
+      "minimum": 0
+    },
+    "time_to_first_byte": {
+      "type": "number",
+      "minimum": 0
+    },
+    "body_read": {
+      "type": "number",
+      "minimum": 0
+    },
+    "total": {
+      "type": "number",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "dns",
+    "tcp_connect",
+    "tls_handshake",
+    "request_write",
+    "time_to_first_byte",
+    "body_read",
+    "total"
+  ]
+}

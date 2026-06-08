@@ -1,0 +1,73 @@
+{
+  "project": "Web-Scraper-v1",
+  "package": "scrapehound",
+  "generated_at": "2026-06-08",
+  "schema_dialect": "https://json-schema.org/draft/2020-12/schema",
+  "files": [
+    {
+      "path": "Schema/README.md",
+      "type": "documentation",
+      "description": "Schema folder overview."
+    },
+    {
+      "path": "Schema/database.schema.sql",
+      "type": "sql",
+      "description": "Standalone SQLite schema."
+    },
+    {
+      "path": "Schema/database.schema.md",
+      "type": "documentation",
+      "description": "Human-readable database schema."
+    },
+    {
+      "path": "Schema/export.schema.json",
+      "type": "json-schema",
+      "description": "Export output schema."
+    },
+    {
+      "path": "Schema/stats.schema.json",
+      "type": "json-schema",
+      "description": "Stats output schema."
+    },
+    {
+      "path": "Schema/crawl-summary.schema.json",
+      "type": "json-schema",
+      "description": "Crawl summary schema."
+    },
+    {
+      "path": "Schema/fetch-result.schema.json",
+      "type": "json-schema",
+      "description": "Fetch result schema."
+    },
+    {
+      "path": "Schema/timing-breakdown.schema.json",
+      "type": "json-schema",
+      "description": "Timing breakdown schema."
+    },
+    {
+      "path": "Schema/robots-result.schema.json",
+      "type": "json-schema",
+      "description": "Robots command output schema."
+    },
+    {
+      "path": "Schema/crawl-options.schema.json",
+      "type": "json-schema",
+      "description": "Normalized crawl options/config schema."
+    },
+    {
+      "path": "Schema/cli-contract.schema.json",
+      "type": "json-schema",
+      "description": "CLI metadata schema."
+    },
+    {
+      "path": "Schema/cli-contract.example.json",
+      "type": "example",
+      "description": "CLI command metadata instance."
+    },
+    {
+      "path": "Schema/schema-manifest.json",
+      "type": "manifest",
+      "description": "Index of schema files."
+    }
+  ]
+}
