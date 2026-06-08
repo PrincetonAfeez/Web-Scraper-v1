@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import hashlib
 import sqlite3
 
 import pytest
 
+from scrapehound.cli.exit_codes import ERROR, OK
+from scrapehound.cli.main import main
 from scrapehound.models import FetchResult, ParsedPage, TimingBreakdown
 from scrapehound.storage.repositories import Storage
 
@@ -88,3 +91,56 @@ def test_enqueue_dedupes_via_frontier(tmp_path):
     # Same normalized URL on re-discovery is ignored (no seen_urls table needed).
     assert storage.enqueue_url(job_id, "http://e.com/p", 0) is None
     storage.close()
+
+
+def test_verify_pages_reports_valid_and_mismatch(tmp_path):
+    storage, job_id, item = _seed(tmp_path)
+    storage.save_page(job_id, item, _result(), _page("OK"), "stored body")
+    report = storage.verify_pages(job_id)
+    assert report["total"] == 1
+    assert len(report["valid"]) == 1
+    assert report["mismatches"] == []
+    assert report["missing"] == []
+
+    with storage.conn:
+        storage.conn.execute(
+            "UPDATE pages SET body_sha256 = ? WHERE job_id = ?",
+            ("0" * 64, job_id),
+        )
+    report = storage.verify_pages(job_id)
+    assert report["mismatches"][0]["url"] == "http://e.com/p"
+    storage.close()
+
+
+def _seed_at(db_path):
+    storage = Storage(str(db_path))
+    job_id = storage.create_job("http://e.com/", 10, 1)
+    storage.enqueue_url(job_id, "http://e.com/p", 0)
+    item = storage.next_frontier_item(job_id)
+    return storage, job_id, item
+
+
+def test_verify_cli_exits_nonzero_on_mismatch(tmp_path, capsys):
+    db_path = tmp_path / "verify.sqlite"
+    storage, job_id, item = _seed_at(db_path)
+    storage.save_page(job_id, item, _result(), _page("OK"), "body")
+    with storage.conn:
+        storage.conn.execute(
+            "UPDATE pages SET body_sha256 = ? WHERE job_id = ?",
+            (hashlib.sha256(b"wrong").hexdigest(), job_id),
+        )
+    storage.close()
+
+    assert main(["verify", "--db", str(db_path), "--job-id", str(job_id)]) == ERROR
+    out = capsys.readouterr().out
+    assert "mismatch" in out
+
+
+def test_verify_cli_succeeds_for_valid_page(tmp_path, capsys):
+    db_path = tmp_path / "verify.sqlite"
+    storage, job_id, item = _seed_at(db_path)
+    storage.save_page(job_id, item, _result(), _page("OK"), "body")
+    storage.close()
+
+    assert main(["verify", "--db", str(db_path), "--job-id", str(job_id)]) == OK
+    assert "1 valid" in capsys.readouterr().out

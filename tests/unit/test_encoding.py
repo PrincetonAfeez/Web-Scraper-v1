@@ -7,7 +7,7 @@ import zlib
 
 import pytest
 
-from scrapehound.exceptions import FetchError, MalformedResponse, ResponseTooLarge
+from scrapehound.exceptions import FetchError, MalformedResponse, ParseError, ResponseTooLarge
 from scrapehound.http.encoding import decode_html, decompress_body
 
 
@@ -58,6 +58,11 @@ def test_decompress_is_bounded_against_zip_bombs():
 def test_decompress_rejects_unknown_encoding():
     with pytest.raises(FetchError):
         decompress_body(b"\x00\x01", "br", 1 << 20)
+
+
+def test_decode_html_raises_parse_error_for_invalid_declared_charset():
+    with pytest.raises(ParseError, match="cannot decode body as utf-8"):
+        decode_html(b"\x80\x81", "text/html; charset=utf-8")
 
 
 def test_decompress_corrupt_body_raises_malformed_not_zliberror():

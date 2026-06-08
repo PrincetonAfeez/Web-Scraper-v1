@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import zlib
 
-from scrapehound.exceptions import FetchError, MalformedResponse, ResponseTooLarge
+from scrapehound.exceptions import FetchError, MalformedResponse, ParseError, ResponseTooLarge
 
 CHARSET_RE = re.compile(r"charset\s*=\s*['\"]?([A-Za-z0-9._-]+)", re.IGNORECASE)
 META_CHARSET_RE = re.compile(r"<meta[^>]+charset=['\"]?([A-Za-z0-9._-]+)", re.IGNORECASE)
@@ -89,8 +89,17 @@ def decode_html(body: bytes, content_type: str) -> tuple[str, str]:
     bom_encoding = _detect_bom(body)
     if bom_encoding:
         return body.decode(bom_encoding, errors="replace"), bom_encoding
+    declared = charset_from_content_type(content_type)
+    if declared:
+        normalized = _normalize_label(declared)
+        try:
+            text = body.decode(normalized, errors="strict")
+        except LookupError as exc:
+            raise ParseError(f"unknown charset: {declared}") from exc
+        except UnicodeDecodeError as exc:
+            raise ParseError(f"cannot decode body as {normalized}: {exc}") from exc
+        return text.lstrip(_BOM_CHAR), normalized
     for encoding in (
-        charset_from_content_type(content_type),
         charset_from_meta(body),
         "utf-8",
     ):

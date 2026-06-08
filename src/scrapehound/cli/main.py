@@ -11,7 +11,8 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from scrapehound.cli.exit_codes import CONFIG_ERROR, ERROR, INTERRUPTED, OK
-from scrapehound.cli.output import print_fetch_result, print_summary
+from scrapehound.cli.logging_config import configure_trace_logging
+from scrapehound.cli.output import print_fetch_result, print_summary, print_verify_report
 from scrapehound.config import load_config, options_from_config
 from scrapehound.crawl.engine import CrawlEngine
 from scrapehound.exceptions import ConfigurationError
@@ -73,6 +74,10 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("--format", choices=["json"], default="json")
     export.add_argument("--output", default=None)
 
+    verify = sub.add_parser("verify", help="Verify stored page body integrity")
+    verify.add_argument("--db", default="scrapehound.sqlite")
+    verify.add_argument("--job-id", type=int, default=None)
+
     robots = sub.add_parser("robots", help="Check robots.txt policy for a URL")
     robots.add_argument("url")
     robots.add_argument("--transport", choices=["raw_socket", "library"], default="raw_socket")
@@ -130,6 +135,8 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_stats(args)
         if args.command == "export":
             return _cmd_export(args)
+        if args.command == "verify":
+            return _cmd_verify(args)
         if args.command == "robots":
             return _cmd_robots(args)
         if args.command == "serve-fixture":
@@ -161,6 +168,8 @@ def _pick(cli_value, config_value, default):  # type: ignore[no-untyped-def]
 
 
 def _cmd_scrape(args: argparse.Namespace) -> int:
+    if args.trace:
+        configure_trace_logging()
     config = load_config(args.config)
     http = config.get("http", {})
     crawl = config.get("crawl", {})
@@ -207,6 +216,8 @@ def _cmd_scrape(args: argparse.Namespace) -> int:
 
 
 def _cmd_crawl(args: argparse.Namespace) -> int:
+    if args.trace:
+        configure_trace_logging()
     config = load_config(args.config)
     options = options_from_config(
         config,
@@ -239,6 +250,8 @@ def _cmd_crawl(args: argparse.Namespace) -> int:
 
 
 def _cmd_resume(args: argparse.Namespace) -> int:
+    if args.trace:
+        configure_trace_logging()
     with Storage(args.db) as storage:
         job_id = args.job_id or storage.latest_job_id()
         if job_id is None:
@@ -269,6 +282,15 @@ def _cmd_export(args: argparse.Namespace) -> int:
         Path(args.output).write_text(data, encoding="utf-8")
     else:
         print(data)
+    return OK
+
+
+def _cmd_verify(args: argparse.Namespace) -> int:
+    with Storage(args.db) as storage:
+        report = storage.verify_pages(args.job_id)
+    print_verify_report(report)
+    if report["mismatches"] or report["missing"]:
+        return ERROR
     return OK
 
 

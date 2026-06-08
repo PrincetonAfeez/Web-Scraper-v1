@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import time
 from urllib.parse import urlsplit
 
 from scrapehound.crawl.retry import RetryPolicy
+from scrapehound.exceptions import ParseError
 from scrapehound.crawl.scheduler import Scheduler
 from scrapehound.crawl.scope import DomainScope
 from scrapehound.http.encoding import decode_html
@@ -16,6 +18,8 @@ from scrapehound.politeness.rate_limit import RateLimiter
 from scrapehound.politeness.robots import RobotsCache
 from scrapehound.storage.repositories import FrontierItem, Storage
 from scrapehound.transport import make_fetcher
+
+logger = logging.getLogger(__name__)
 
 
 class CrawlEngine:
@@ -86,7 +90,7 @@ class CrawlEngine:
                 crawl_delay = self.robots.crawl_delay(item.url) if self.options.obey_robots else None
                 delay = max(self.options.min_delay_seconds, crawl_delay or 0.0)
                 if self.options.trace:
-                    print(f"[rate-limit] domain={domain} delay={delay:.3f}s url={item.url}")
+                    logger.debug("[rate-limit] domain=%s delay=%.3fs url=%s", domain, delay, item.url)
                 self.scheduler.wait_for_domain(domain, delay)
                 self.storage.mark_in_progress(item.id)
                 result = self._fetch(item)
@@ -131,7 +135,7 @@ class CrawlEngine:
                 try:
                     parsed = self.parser.parse(result.body, result.final_url, content_type)
                     body_text, _encoding = decode_html(result.body, content_type)
-                except Exception as exc:
+                except ParseError as exc:
                     failed_this_run += self._fail(
                         job_id,
                         item,
@@ -141,11 +145,26 @@ class CrawlEngine:
                         item.retry_count,
                     )
                     continue
+                except Exception as exc:
+                    failed_this_run += self._fail(
+                        job_id,
+                        item,
+                        "internal_parse_error",
+                        str(exc),
+                        result.status_code,
+                        item.retry_count,
+                    )
+                    continue
                 self.storage.save_page(job_id, item, result, parsed, body_text)
                 self.storage.mark_fetched(item.id)
                 fetched_this_run += 1
                 if self.options.trace:
-                    print(f"[fetched] {result.status_code} {result.final_url} links={len(parsed.links)}")
+                    logger.debug(
+                        "[fetched] %s %s links=%d",
+                        result.status_code,
+                        result.final_url,
+                        len(parsed.links),
+                    )
                 next_depth = item.depth + 1
                 if next_depth <= self.options.max_depth:
                     for link in parsed.links:
@@ -175,7 +194,7 @@ class CrawlEngine:
 
     def _fetch(self, item: FrontierItem) -> FetchResult:
         if self.options.trace:
-            print(f"[fetch] {item.url}")
+            logger.debug("[fetch] %s", item.url)
         return self.fetcher.fetch(
             FetchRequest(
                 url=item.url,
@@ -207,7 +226,12 @@ class CrawlEngine:
             self.scheduler.pause_domain(domain, delay)
         self.storage.schedule_retry(item.id, item.retry_count + 1, delay)
         if self.options.trace:
-            print(f"[retry] {item.url} category={failure_category} delay={delay:.2f}s")
+            logger.debug(
+                "[retry] %s category=%s delay=%.2fs",
+                item.url,
+                failure_category,
+                delay,
+            )
         return True
 
     def _skip(
@@ -229,7 +253,7 @@ class CrawlEngine:
             retry_count=item.retry_count,
         )
         if self.options.trace:
-            print(f"[skip] {category} {item.url}")
+            logger.debug("[skip] %s %s", category, item.url)
         return 1
 
     def _fail(
@@ -251,7 +275,7 @@ class CrawlEngine:
             retry_count=retry_count,
         )
         if self.options.trace:
-            print(f"[fail] {category} {item.url} {message or ''}")
+            logger.debug("[fail] %s %s %s", category, item.url, message or "")
         return 1
 
 

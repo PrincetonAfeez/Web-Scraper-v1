@@ -5,6 +5,7 @@ from __future__ import annotations
 from html.parser import HTMLParser
 from urllib.parse import urldefrag, urljoin
 
+from scrapehound.exceptions import ParseError
 from scrapehound.http.encoding import decode_html
 from scrapehound.models import ParsedPage
 
@@ -72,8 +73,11 @@ class StdlibHTMLParser:
     def parse(self, body: bytes, final_url: str, content_type: str) -> ParsedPage:
         text, encoding = decode_html(body, content_type)
         extractor = _Extractor()
-        extractor.feed(text)
-        extractor.close()
+        try:
+            extractor.feed(text)
+            extractor.close()
+        except Exception as exc:
+            raise ParseError(f"HTML parse failed: {exc}") from exc
         base = urljoin(final_url, extractor.base_href) if extractor.base_href else final_url
         links: list[str] = []
         seen: set[str] = set()

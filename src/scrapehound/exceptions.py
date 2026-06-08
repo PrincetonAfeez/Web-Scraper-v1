@@ -36,3 +36,7 @@ class RobotsDisallowed(ScrapehoundError):
 
 class ConfigurationError(ScrapehoundError):
     """Raised when CLI or TOML configuration is invalid."""
+
+
+class ParseError(ScrapehoundError):
+    """Raised when HTML parsing or decoding fails."""

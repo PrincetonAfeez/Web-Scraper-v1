@@ -15,6 +15,11 @@ from scrapehound.models import FetchResult, ParsedPage
 from scrapehound.storage.db import connect, init_db
 
 
+def _body_text_sha256(body_text: str) -> str:
+    """Fingerprint persisted page text (UTF-8) for integrity checks."""
+    return hashlib.sha256(body_text.encode("utf-8")).hexdigest()
+
+
 @dataclass(slots=True)
 class FrontierItem:
     id: int
@@ -220,7 +225,7 @@ class Storage:
                     parsed.description,
                     json.dumps(parsed.headings),
                     json.dumps(parsed.links),
-                    hashlib.sha256(result.body).hexdigest(),
+                    _body_text_sha256(body_text),
                     body_text,
                     parsed.text_encoding,
                     json.dumps(result.timings.as_dict()),
@@ -282,6 +287,52 @@ class Storage:
     def latest_job_id(self) -> int | None:
         row = self.conn.execute("SELECT id FROM crawl_jobs ORDER BY id DESC LIMIT 1").fetchone()
         return int(row["id"]) if row else None
+
+    def verify_pages(self, job_id: int | None = None) -> dict[str, Any]:
+        """Recompute body_sha256 from stored body_text and report integrity."""
+        params: tuple[Any, ...] = (job_id,) if job_id is not None else ()
+        suffix = "WHERE job_id = ?" if job_id is not None else ""
+        rows = self.conn.execute(
+            f"SELECT id, normalized_url, body_sha256, body_text FROM pages {suffix} ORDER BY id",
+            params,
+        ).fetchall()
+
+        valid: list[dict[str, Any]] = []
+        mismatches: list[dict[str, Any]] = []
+        missing: list[dict[str, Any]] = []
+
+        for row in rows:
+            page_id = int(row["id"])
+            url = row["normalized_url"]
+            stored_hash = row["body_sha256"]
+            body_text = row["body_text"]
+
+            if not stored_hash:
+                missing.append({"id": page_id, "url": url, "reason": "missing body_sha256"})
+                continue
+            if body_text is None:
+                missing.append({"id": page_id, "url": url, "reason": "missing body_text"})
+                continue
+
+            computed = _body_text_sha256(body_text)
+            if computed == stored_hash:
+                valid.append({"id": page_id, "url": url})
+            else:
+                mismatches.append(
+                    {
+                        "id": page_id,
+                        "url": url,
+                        "stored": stored_hash,
+                        "computed": computed,
+                    }
+                )
+
+        return {
+            "total": len(rows),
+            "valid": valid,
+            "mismatches": mismatches,
+            "missing": missing,
+        }
 
 
 def _frontier_item(row: sqlite3.Row) -> FrontierItem:

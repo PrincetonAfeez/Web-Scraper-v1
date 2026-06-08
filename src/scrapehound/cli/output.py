@@ -29,6 +29,23 @@ def print_summary(summary: CrawlSummary) -> None:
     print("frontier=" + json.dumps(summary.details.get("frontier", {}), sort_keys=True))
 
 
+def print_verify_report(report: dict) -> None:
+    valid_count = len(report["valid"])
+    mismatch_count = len(report["mismatches"])
+    missing_count = len(report["missing"])
+    print(
+        f"verified {report['total']} pages: "
+        f"{valid_count} valid, {mismatch_count} mismatch, {missing_count} missing"
+    )
+    for item in report["mismatches"]:
+        print(
+            f"mismatch id={item['id']} url={item['url']} "
+            f"stored={item['stored']} computed={item['computed']}"
+        )
+    for item in report["missing"]:
+        print(f"missing id={item['id']} url={item['url']} reason={item['reason']}")
+
+
 def _header(headers: dict[str, str], name: str) -> str | None:
     for key, value in headers.items():
         if key.lower() == name.lower():

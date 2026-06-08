@@ -35,6 +35,18 @@ Inspect results:
 ```powershell
 scrapehound stats --db demo.sqlite
 scrapehound export --db demo.sqlite --format json
+scrapehound verify --db demo.sqlite --job-id 1
+```
+
+The `verify` command recomputes `body_sha256` from stored `body_text` and reports valid pages, hash mismatches, and missing data. It exits with a non-zero code when corruption is detected.
+
+### Dev dependencies
+
+`pyproject.toml` remains the source of truth for project metadata. For reproducible dev installs:
+
+```powershell
+python -m pip install -e .
+python -m pip install -r requirements-dev.lock
 ```
 
 ## Capstone Rubric Map
@@ -76,6 +88,13 @@ CLI -> crawl engine -> scheduler/politeness -> Fetcher interface
 
 The raw socket backend is the learning artifact. The library backend exists to show the same crawler can use a mature HTTP implementation behind the same `Fetcher` interface.
 
+## Storage Limits
+
+`scrapehound` uses one local SQLite database file for crawl state.
+It is intended for one crawler process writing to a database at a time.
+Running multiple crawler processes against the same DB file is not a supported workflow.
+To run separate crawls in parallel, use separate DB files.
+
 ## Tests
 
 ```powershell
@@ -83,3 +102,12 @@ python -m pytest
 ```
 
 The test suite includes protocol parsing, chunked decoding, URL normalization, robots parsing, rate limiting, HTML parsing, raw socket integration against the WSGI fixture, and an end-to-end crawl.
+
+## Exit Codes
+
+| Code | Meaning |
+| --- | --- |
+| 0 | Success |
+| 1 | Runtime error (fetch failure, resume error, verify mismatch, uncaught exception) |
+| 2 | Configuration or usage error |
+| 130 | Interrupted by user (Ctrl-C) |
