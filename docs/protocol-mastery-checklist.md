@@ -1,0 +1,22 @@
+# Protocol Mastery Checklist
+
+- [x] URL parsing into scheme, host, port, path, and query
+- [x] Default HTTP/HTTPS ports
+- [x] DNS resolution timing
+- [x] TCP connection timing
+- [x] HTTPS socket wrapping
+- [x] Manual HTTP/1.1 GET request with CRLF headers
+- [x] Host, User-Agent, Accept, Accept-Encoding, Connection headers
+- [x] Status line parsing
+- [x] Case-insensitive headers
+- [x] Content-Length body reads
+- [x] Chunked transfer decoding in parser tests and raw test server
+- [x] Oversized response protection
+- [x] Redirect hop limit
+- [x] Typed timeout and network errors
+- [x] robots.txt checks and cache
+- [x] Crawl-delay support
+- [x] Per-domain request spacing
+- [x] Persistent frontier states
+- [x] Resume recovery from in-progress URLs
+- [x] WSGI fixture app using `environ`, `start_response`, and byte iterables
