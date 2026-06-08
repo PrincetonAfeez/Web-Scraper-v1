@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /private
+Allow: /private/public
+Crawl-delay: 2.5
