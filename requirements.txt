@@ -1,0 +1,6 @@
+# Install scrapehound (stdlib-only runtime; see pyproject.toml)
+-e .
+
+# Development / testing
+pytest>=8.0
+setuptools>=68
